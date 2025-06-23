@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "manager", "worker", "customer"],
       required: true,
     },
+    verified: { type: Boolean, default: false },
+    verificationToken: { type: String }, // store token or hash for verification
+
   },
   { timestamps: true }
 );

@@ -11,6 +11,11 @@ const reportRoutes = require("./routes/report");
 
 const app = express();
 
+// for google auth
+const passport = require("passport");
+require("./config/passport");
+app.use(passport.initialize());
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -27,7 +32,7 @@ app.get("/api/test", (req, res) => {
   res.send("Hello there!");
 });
 // Connect to MongoDB and start the server
-if (process.env.NODE_ENV !== "test") {
+//if (process.env.NODE_ENV !== "test") {
   mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
@@ -39,6 +44,6 @@ if (process.env.NODE_ENV !== "test") {
     .catch((err) => {
       console.error("❌ MongoDB connection error:", err.message);
     });
-}
+//}
 
 module.exports = app;
