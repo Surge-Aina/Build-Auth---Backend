@@ -1,18 +1,54 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const LocalStrategy = require("passport-local").Strategy; // ✅ Added LocalStrategy for email/password login
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
 require("dotenv").config();
 
-// Configure Google OAuth Strategy
+// ✅ Local Strategy: for logging in with email + password
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email", // Match your frontend field
+      passwordField: "password",
+    },
+    async (email, password, done) => {
+      try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+          return done(null, false, { message: "Incorrect email." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return done(null, false, { message: "Incorrect password." });
+        }
+
+        // ✅ Optional: Block unverified users
+        if (!user.verified) {
+          return done(null, false, { message: "Please verify your email." });
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+// ✅ Google OAuth Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
+      passReqToCallback: true, // Needed to access `req.session` if desired
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
         const username = profile.displayName || "GoogleUser";
@@ -27,9 +63,10 @@ passport.use(
           user = new User({
             username,
             email,
-            password: null,       // No password needed for Google users
-            role: "customer",     // Default role (customize if needed)
-            verified: true,       // Trust Google to verify email
+            password: null,       // 🔒 Password not stored for Google users
+            role: "customer",     // ✅ Default role (or get from req/session if needed)
+            verified: true,       // ✅ Trust Google
+            googleID: profile.id, // ✅ Optional: track Google ID
           });
           await user.save();
         } else if (!user.verified) {
@@ -39,24 +76,11 @@ passport.use(
 
         return done(null, user);
       } catch (err) {
+        console.error("Google Strategy Error:", err);
         return done(err, null);
       }
     }
   )
-);
-
-// Session management
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
+)
 
 module.exports = passport;

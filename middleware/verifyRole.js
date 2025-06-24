@@ -5,9 +5,7 @@ module.exports = function verifyRole(requiredRole) {
     }
 
     if (req.user.role !== requiredRole) {
-      return res
-        .status(403)
-        .json({ message: "Access denied: insufficient role" });
+      return res.status(403).json({ message: "Access denied: insufficient role" });
     }
 
     next();

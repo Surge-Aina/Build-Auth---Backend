@@ -12,19 +12,23 @@
   "license": "ISC",
   "description": "- ✅ User Registration & Login (Email + Password)\r - 🔐 JWT-based Authentication\r - 👥 Role-based Access Control (RBAC)\r - 🧾 MongoDB Integration using Mongoose\r - 🧪 RESTful API with Express",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.16.0",
     "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "mockingoose": "^2.16.2",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.1"
   }

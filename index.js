@@ -10,7 +10,7 @@ const taskRoutes = require("./routes/task");
 const reportRoutes = require("./routes/report");
 
 const app = express();
-
+// app.use(session({ secret: "somevalue"}));
 // for google auth
 const passport = require("passport");
 require("./config/passport");
@@ -32,7 +32,7 @@ app.get("/api/test", (req, res) => {
   res.send("Hello there!");
 });
 // Connect to MongoDB and start the server
-//if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test") {
   mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
@@ -44,6 +44,6 @@ app.get("/api/test", (req, res) => {
     .catch((err) => {
       console.error("❌ MongoDB connection error:", err.message);
     });
-//}
+}
 
 module.exports = app;
