@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 require("dotenv").config();
 
-// ✅ Local Strategy: for logging in with email + password
+// Local Strategy: for logging in with email + password
 passport.use(
   new LocalStrategy(
     {
@@ -26,7 +26,7 @@ passport.use(
           return done(null, false, { message: "Incorrect password." });
         }
 
-        // ✅ Optional: Block unverified users
+        //Optional: Block unverified users
         if (!user.verified) {
           return done(null, false, { message: "Please verify your email." });
         }
@@ -39,16 +39,15 @@ passport.use(
   )
 );
 
-// ✅ Google OAuth Strategy
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      passReqToCallback: true, // Needed to access `req.session` if desired
+      session: false, // This disables session usage here
     },
-    async (req, accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
         const username = profile.displayName || "GoogleUser";
@@ -63,10 +62,10 @@ passport.use(
           user = new User({
             username,
             email,
-            password: null,       // 🔒 Password not stored for Google users
-            role: "customer",     // ✅ Default role (or get from req/session if needed)
-            verified: true,       // ✅ Trust Google
-            googleID: profile.id, // ✅ Optional: track Google ID
+            password: null,
+            role: "customer",
+            verified: true,
+            googleID: profile.id,
           });
           await user.save();
         } else if (!user.verified) {
@@ -81,6 +80,6 @@ passport.use(
       }
     }
   )
-)
+);
 
 module.exports = passport;
